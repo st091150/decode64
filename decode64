@@ -72,7 +72,7 @@ int main()
         return 2;
     }
     const int block_size = 19;
-    char inStr[3 * block_size], outStr[4 * block_size];
+    char inStr[4 * block_size], outStr[3 * block_size];
     int s;
     while (inFile.peek() != EOF) {
         for (int i = 0; i < 77 && inFile.peek() != EOF;++i) {
