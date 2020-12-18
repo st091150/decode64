@@ -56,7 +56,7 @@ int main()
     std::cout << "Input source file name: ";
     std::cin.getline(inputFileName, 1024);
 
-    std::ifstream inFile(inputFileName, std::ios_base::binary);
+    std::ifstream inFile(inputFileName);
     if (!inFile) {
         std::cout << "Can not open file " << inputFileName << std::endl;
         return 1;
@@ -65,7 +65,7 @@ int main()
     std::cout << "Input file name: ";
     std::cin.getline(outputFileName, 1024);
 
-    std::ofstream outFile(outputFileName);
+    std::ofstream outFile(outputFileName,std::ios_base::binary);
     if (!outFile) {
         inFile.close();
         std::cout << "Can not write to file " << outputFileName << std::endl;
@@ -75,20 +75,20 @@ int main()
     char inStr[4 * block_size], outStr[3 * block_size];
     int s;
     while (inFile.peek() != EOF) {
-        for (int i = 0; i < 77 && inFile.peek() != EOF;++i) {
+        s = 0;
+        for (int i = 0; i < 4*block_size && inFile.peek() != EOF;++i) {
             char k;
             k = inFile.get();
             if (k >= 'A' && k <= 'Z' || k >= 'a' && k <= 'z' || k >= '0' && k <= '9' || k == '+' || k == '/' || k == '=') {
-                inStr[i] = k;
+              inStr[i] = k;
+              ++s;
             }
         }
-        s = inFile.gcount();
+        
         s = decode(inStr, s, outStr);
         outFile.write(outStr, s);
-        outFile << std::endl;
-
-        inFile.close();
-        outFile.close();
-        std::cout << "decoded - OK" << std::endl;
     }
+    inFile.close();
+    outFile.close();
+    std::cout << "decoded - OK" << std::endl;
 }
