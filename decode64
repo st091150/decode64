@@ -78,7 +78,7 @@ int main()
         for (int i = 0; i < 77 && inFile.peek() != EOF;++i) {
             char k;
             k = inFile.get();
-            if (k >= 'A' && k <= 'Z' || k >= 'a' && k <= 'z' || k >= '0' && k <= '9' || k == '+' || k == '/') {
+            if (k >= 'A' && k <= 'Z' || k >= 'a' && k <= 'z' || k >= '0' && k <= '9' || k == '+' || k == '/' || k == '=') {
                 inStr[i] = k;
             }
         }
