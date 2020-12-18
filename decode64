@@ -1,0 +1,94 @@
+#include <fstream>
+#include <iostream>
+
+char utf(unsigned char b) {
+    int d;
+    d = (int)b;
+    return d;
+}
+unsigned char base64Code(char a) {
+    if (a >= 'A' && a <= 'Z')return a - 'A';
+    if (a >= 'a' && a <= 'z')return a - 'a' + 26;
+    if (a >= '0' && a <= '9')return a - '0' + 52;
+    if (a == '+')return 62;
+    if (a == '/')return 63;
+    return 64;
+}
+int decode(char* instr, int len, char* outstr) {
+
+    unsigned char b1, b2, b3, b4;
+    char a1, a2, a3;
+
+    int j = 0;
+    int k = 0;
+
+    for (int i = 0; i < len; i += 4) {
+        b1 = base64Code(instr[i]);
+        b2 = base64Code(instr[i + 1]);
+        b3 = base64Code(instr[i + 2]);
+        b4 = base64Code(instr[i + 3]);
+
+        if (b3 == 64) {
+            b3 = 0;
+            b4 = 0;
+            k = 2;
+        }
+        if (b4 == 64) {
+            b4 = 0;
+            k = 1;
+        }
+
+        a1 = (b1 << 2) | (b2 >> 4);
+        a2 = (b2 << 4) | (b3 >> 2);
+        a3 = (b3 << 6) | b4;
+
+        outstr[j++] = a1;
+        outstr[j++] = a2;
+        outstr[j++] = a3;
+    }
+    return j - k;
+}
+
+int main()
+{
+    char inputFileName[1024];
+    char outputFileName[1024];
+    std::cout << "Input source file name: ";
+    std::cin.getline(inputFileName, 1024);
+
+    std::ifstream inFile(inputFileName, std::ios_base::binary);
+    if (!inFile) {
+        std::cout << "Can not open file " << inputFileName << std::endl;
+        return 1;
+    }
+
+    std::cout << "Input file name: ";
+    std::cin.getline(outputFileName, 1024);
+
+    std::ofstream outFile(outputFileName);
+    if (!outFile) {
+        inFile.close();
+        std::cout << "Can not write to file " << outputFileName << std::endl;
+        return 2;
+    }
+    const int block_size = 19;
+    char inStr[3 * block_size], outStr[4 * block_size];
+    int s;
+    while (inFile.peek() != EOF) {
+        for (int i = 0; i < 77 && inFile.peek() != EOF;++i) {
+            char k;
+            k = inFile.get();
+            if (k >= 'A' && k <= 'Z' || k >= 'a' && k <= 'z' || k >= '0' && k <= '9' || k == '+' || k == '/') {
+                inStr[i] = k;
+            }
+        }
+        s = inFile.gcount();
+        s = decode(inStr, s, outStr);
+        outFile.write(outStr, s);
+        outFile << std::endl;
+
+        inFile.close();
+        outFile.close();
+        std::cout << "decoded - OK" << std::endl;
+    }
+}
